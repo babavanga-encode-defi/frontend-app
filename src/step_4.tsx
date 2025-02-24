@@ -22,11 +22,13 @@ type ContractInfo = {
 };
 
 export default function Mint() {
+  //NEW: constants to facilitate minting tx
   const { paymentAddress, connected, signPsbt, paymentPublicKey } =
     useLaserEyes();
   const [mintingContractId, setMintingContractId] = useState<string | null>(
     null
   );
+  //NEW: more constants to facilitate minting tx
   const [showModal, setShowModal] = useState(false);
   const [mintStatus, setMintStatus] = useState<{
     success: boolean;
@@ -82,7 +84,7 @@ export default function Mint() {
     run();
   }, []);
 
-  // This is function to construct and broadcast a Glittr asset mint transaction
+  // NEW: function to construct and broadcast a Glittr asset mint transaction
   const mint = async (contract: ContractInfo) => {
     setMintingContractId(contract.contractId);
     try {

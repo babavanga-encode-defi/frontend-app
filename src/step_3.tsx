@@ -12,7 +12,7 @@ const client = new GlittrSDK({
   apiKey: API_KEY,
 });
 
-//add contract data struct
+//NEW: contract data struct
 type ContractInfo = {
   ticker: string;
   contractId: string;
@@ -29,6 +29,7 @@ export default function Mint() {
 
   const [contracts, setContracts] = useState<ContractInfo[] | null>(null);
 
+  //NEW: fetch existing contracts and display them
   useEffect(() => {
     // Fetch and process the list of deployed Glittr asset contracts
     const run = async () => {
@@ -76,6 +77,7 @@ export default function Mint() {
     run();
   }, []);
 
+  //NEW: lots of ts stuff to make the contract list pretty
   return (
     <div className="z-10 min-h-screen p-8 mt-8">
       <div className="flex flex-col md:flex-row gap-8">
