@@ -1,7 +1,8 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
-import Mint from "./mint.tsx";
+//import Mint from "./mint.tsx";
+import Mint from "./empty_page.tsx"
 import ParticlesBackground from "./components/ParticlesBackground.tsx";
 import { LaserEyesProvider, GLITTR_DEVNET, TESTNET4 } from "@glittr-sdk/lasereyes";
 import NavigationWrapper from "./components/NavigationWrapper.tsx";

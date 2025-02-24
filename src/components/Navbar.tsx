@@ -60,7 +60,7 @@ export default function Navbar() {
     <>
       <div className="p-0.5 items-center text-center bg-amber-500 text-black text-sm">
         TESTING APP: Please switch your wallet network to{" "}
-        {NETWORK == "testnet" ? "testnet4" : NETWORK} manually.
+        {NETWORK == "testnet" ? "testnet4" : NETWORK == "regtest" ? "Glittr Devnet" : NETWORK} manually.
       </div>
       <nav className="relative z-10 bg-[#0f0f11]/50 border-b border-gray-700/30 px-6 py-4">
         <div className="flex justify-between items-center">
