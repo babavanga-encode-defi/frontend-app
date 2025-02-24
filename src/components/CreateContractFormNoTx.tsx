@@ -21,7 +21,7 @@ export function CreateContractForm() {
     await createContract(formData);
   };
 
-    //handle input
+    //validate input
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const { name, value } = e.target;
       //coerce tickers

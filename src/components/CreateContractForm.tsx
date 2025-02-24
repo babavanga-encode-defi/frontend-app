@@ -13,12 +13,12 @@ export function CreateContractForm({
 }: {
   client: GlittrSDK;
 }) {
+  //NEW necessary constants
   const {paymentAddress,  signPsbt, paymentPublicKey} = useLaserEyes();
   const [txid, setTxid] = useState<string | undefined>(undefined);
   const [showModal, setShowModal] = useState(false);
   const [txSuccess, setTxSuccess] = useState(false);
   
-  //set default form values
   const [formData, setFormData] = useState({
     ticker: undefined,
     supply_cap: "100000",
@@ -31,10 +31,13 @@ export function CreateContractForm({
     },
   });
 
-  //handle input
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+    await createContract(formData);
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    //coerce tickers
     if (name.includes(".")) {
       const [parent, child] = name.split(".");
       setFormData((prev) => ({
@@ -59,13 +62,6 @@ export function CreateContractForm({
     }
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleSubmit = async (e: any) => {
-    e.preventDefault();
-    await createContract(formData);
-  };
-
-  //create the token contract
   const createContract = async (formData: {
     ticker: string | undefined;
     supply_cap: string | undefined;
@@ -77,7 +73,7 @@ export function CreateContractForm({
     amount_per_mint?: string | undefined;
     burn_mechanism?: BurnMechanism | undefined;
   }) => {
-    //fill with form data
+    //NEW: fill with form data
     const tx = txBuilder.contractInstantiate({
       ticker: formData.ticker,
       divisibility: formData.divisibility,
@@ -91,7 +87,7 @@ export function CreateContractForm({
       }
     });
 
-    //create btc tx 
+    //NEW: create glittr tx 
     const psbt = await client.createTx({
       address: paymentAddress,
       tx,
@@ -99,7 +95,7 @@ export function CreateContractForm({
       publicKey: paymentPublicKey,
     });
 
-    //bitcoinjslib stuff
+    //NEW: create btc tx
     const result = await signPsbt(psbt.toHex(), false, false);
     if (result !== undefined && !!result?.signedPsbtHex) {
       const newPsbt = Psbt.fromHex(result?.signedPsbtHex);
