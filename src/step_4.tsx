@@ -4,14 +4,14 @@ import Asset from "./components/Asset";
 import { Psbt } from "bitcoinjs-lib";
 import { CreateContractForm } from "./components/CreateContractForm";
 import { TxResultModal } from "./components/TxResultModal";
-import { GLITTR_API, NETWORK, WALLET_API } from "./constants";
+import { GLITTR_API, NETWORK, WALLET_API, API_KEY } from "./constants";
 import { useLaserEyes } from "@glittr-sdk/lasereyes";
 
 const client = new GlittrSDK({
   network: NETWORK!,
   electrumApi: WALLET_API!,
   glittrApi: GLITTR_API!,
-  apiKey: "",
+  apiKey: API_KEY,
 });
 
 type ContractInfo = {
@@ -46,6 +46,15 @@ export default function Mint() {
       // Filter to only include Freemint asset contracts
       const contracts = await Promise.all(
         Object.keys(listContractRaw.result)
+          .filter((contractId: string) => {
+            const contractInfo = listContractRaw.result[contractId];
+
+            if (contractInfo.type) {
+             return contractInfo.type.free_mint == true;
+             } else {
+               return false;
+             }
+          })
           .map(async (contractId: string) => {
             // Fetch asset contract metadata to get the amount_per_mint
             const contractInfo = listContractRaw.result[contractId];

@@ -1,22 +1,6 @@
 import { useState } from "react";
-import {
-  BurnMechanism,
-  MBAMintMechanism,
-} from "@glittr-sdk/sdk/dist/transaction/contract/mba";
-import { GlittrSDK, txBuilder } from "@glittr-sdk/sdk";
-import { TxResultModal } from "./TxResultModal.tsx";
-import { Psbt } from "bitcoinjs-lib";
-import { useLaserEyes } from "@glittr-sdk/lasereyes";
 
-export function CreateContractForm({
-  client,
-}: {
-  client: GlittrSDK;
-}) {
-  const {paymentAddress,  signPsbt, paymentPublicKey} = useLaserEyes();
-  const [txid, setTxid] = useState<string | undefined>(undefined);
-  const [showModal, setShowModal] = useState(false);
-  const [txSuccess, setTxSuccess] = useState(false);
+export function CreateContractForm() {
   
   //set default form values
   const [formData, setFormData] = useState({
@@ -32,93 +16,49 @@ export function CreateContractForm({
   });
 
   //handle input
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    //coerce tickers
-    if (name.includes(".")) {
-      const [parent, child] = name.split(".");
-      setFormData((prev) => ({
-        ...prev,
-        mint_mechanism: {
-          ...prev.mint_mechanism,
-          [parent]: {
-            // @ts-expect-error hacky way to insert previous value
-            ...prev.mint_mechanism[parent],
-            [child]: value,
-          },
-        },
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]:
-          name === "divisibility" || name === "live_time"
-            ? parseInt(value) || 0
-            : value,
-      }));
-    }
-  };
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     await createContract(formData);
   };
 
-  //create the token contract
-  const createContract = async (formData: {
-    ticker: string | undefined;
-    supply_cap: string | undefined;
-    divisibility: number;
-    live_time: number;
-    mint_mechanism:
-      | { free_mint: { amount_per_mint: string } }
-      | MBAMintMechanism;
-    amount_per_mint?: string | undefined;
-    burn_mechanism?: BurnMechanism | undefined;
-  }) => {
-    //fill with form data
-    const tx = txBuilder.contractInstantiate({
-      ticker: formData.ticker,
-      divisibility: formData.divisibility,
-      live_time: formData.live_time,
-      supply_cap: formData.supply_cap,
-      mint_mechanism: {
-        free_mint: {
-          // @ts-expect-error amount_per_mint exist
-          amount_per_mint: formData.mint_mechanism.free_mint.amount_per_mint
-        }
+    //handle input
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { name, value } = e.target;
+      //coerce tickers
+      if (name.includes(".")) {
+        const [parent, child] = name.split(".");
+        setFormData((prev) => ({
+          ...prev,
+          mint_mechanism: {
+            ...prev.mint_mechanism,
+            [parent]: {
+              // @ts-expect-error hacky way to insert previous value
+              ...prev.mint_mechanism[parent],
+              [child]: value,
+            },
+          },
+        }));
+      } else {
+        setFormData((prev) => ({
+          ...prev,
+          [name]:
+            name === "divisibility" || name === "live_time"
+              ? parseInt(value) || 0
+              : value,
+        }));
       }
-    });
+    };
 
-    //create btc tx 
-    const psbt = await client.createTx({
-      address: paymentAddress,
-      tx,
-      outputs: [],
-      publicKey: paymentPublicKey,
-    });
-
-    //bitcoinjslib stuff
-    const result = await signPsbt(psbt.toHex(), false, false);
-    if (result !== undefined && !!result?.signedPsbtHex) {
-      const newPsbt = Psbt.fromHex(result?.signedPsbtHex);
-      newPsbt.finalizeAllInputs();
-      const newHex = newPsbt.extractTransaction(true).toHex();
-
-      try {
-        const txId = await client.broadcastTx(newHex);
-        setTxid(txId);
-        setTxSuccess(true);
-        setShowModal(true);
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (_e) {
-        setTxid(undefined);
-        setTxSuccess(false);
-        setShowModal(true);
-      }
-    }
-  };
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const createContract = async (_formData: {
+      ticker: string | undefined;
+      supply_cap: string | undefined;
+      divisibility: number;
+      live_time: number;
+      mint_mechanism:
+        | { free_mint: { amount_per_mint: string } }
+      amount_per_mint?: string | undefined;
+    })=> {}
 
   return (
     <section>
@@ -220,18 +160,7 @@ export function CreateContractForm({
           </button>
         </form>
       </div>
-      {showModal &&
-        TxResultModal(
-          txSuccess,
-          setShowModal,
-          txSuccess
-            ? "Contract Creation Successful!"
-            : "Contract Creation Failed",
-          txSuccess
-            ? "Your contract has been successfully created."
-            : "There was an error while minting your token. Please try again.",
-          txid
-        )}
+
     </section>
   );
-}
+};
