@@ -7,7 +7,6 @@ export default function Mint() {
  return (
     <div className="z-10 min-h-screen p-8 mt-8">
       <div className="flex flex-col md:flex-row gap-8">
-        {/* Left side - Contract List */}
         <div className="flex-grow">
           {connected && <CreateContractForm />}
             <div className="space-y-2">
@@ -15,13 +14,7 @@ export default function Mint() {
             </div>
           </div>
         </div>
-
         {/* Vertical Divider */}
-        <div className="hidden md:block w-px bg-gray-700/30 self-stretch"></div>
-
-        {/* Right side - Asset Component */}
-        <div className="md:w-[300px] shrink-0">
-        </div>
       </div>
 
   );
