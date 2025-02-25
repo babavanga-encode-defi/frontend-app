@@ -38,9 +38,9 @@ export const storageManager = {
       } else {
         localStorage.setItem(key, JSON.stringify(value));
       }
-    } catch (error) {
+    } catch (error: any) {
       // If quota exceeded, clear old data and try again
-      if (error.name === 'QuotaExceededError') {
+      if (error?.name === 'QuotaExceededError') {
         try {
           // Clear old markets data
           localStorage.removeItem('markets');

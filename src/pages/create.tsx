@@ -1,14 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate, Link } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Toaster, toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
-import { txBuilder, GlittrSDK } from "@glittr-sdk/sdk";
-import { Psbt } from "bitcoinjs-lib";
+import { GlittrSDK } from "@glittr-sdk/sdk";
 import { GLITTR_API, NETWORK, WALLET_API, API_KEY } from ".././constants";
 import { useLaserEyes } from "@glittr-sdk/lasereyes";
 import { createMarketContract } from "../create_market_contract";
-import { Account } from "@glittr-sdk/sdk";
 import MarketCreatedModal from '../components/MarketCreatedModal';
 import CircularTimer from '../components/CircularTimer';
 import { storageManager } from '../utils/storage';
@@ -34,7 +32,8 @@ export default function Create() {
   const [searchParams] = useSearchParams();
   const marketType = searchParams.get('type');
   const navigate = useNavigate();
-  
+  //@ts-ignore
+
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imageError, setImageError] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -59,6 +58,7 @@ export default function Create() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [isTypeModalOpen, setIsTypeModalOpen] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  //@ts-ignore
   const [marketNumber, setMarketNumber] = useState<string>('');
   const [createdMarketId, setCreatedMarketId] = useState<string | number>('');
   const [showTimer, setShowTimer] = useState(false);
@@ -221,19 +221,19 @@ export default function Create() {
     }
   };
 
-  const generateMarketTicker = (title: string): string => {
-    // Remove special characters and spaces, keep alphanumeric
-    const cleanTitle = title.replace(/[^a-zA-Z0-9]/g, '');
+  // const generateMarketTicker = (title: string): string => {
+  //   // Remove special characters and spaces, keep alphanumeric
+  //   const cleanTitle = title.replace(/[^a-zA-Z0-9]/g, '');
     
-    // Take first 5 characters (or less if title is shorter)
-    const prefix = cleanTitle.substring(0, 5).toUpperCase();
+  //   // Take first 5 characters (or less if title is shorter)
+  //   const prefix = cleanTitle.substring(0, 5).toUpperCase();
     
-    // Add a timestamp suffix to ensure uniqueness
-    const timestamp = Date.now().toString().slice(-4);
+  //   // Add a timestamp suffix to ensure uniqueness
+  //   const timestamp = Date.now().toString().slice(-4);
     
-    // Combine with a separator
-    return `${prefix}${timestamp}`;
-  };
+  //   // Combine with a separator
+  //   return `${prefix}${timestamp}`;
+  // };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -322,10 +322,7 @@ export default function Create() {
     setOptions(options.slice(0, 3));
   };
 
-  const handleTypeChange = () => {
-    setIsTypeModalOpen(true);
-  };
-
+ 
   const handleCloseModal = () => {
     setShowSuccessModal(false);
     setIsSuccess(false);

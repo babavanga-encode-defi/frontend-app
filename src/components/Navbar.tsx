@@ -14,7 +14,6 @@ import {
 } from "@glittr-sdk/lasereyes";
 import { NETWORK, WALLET_API } from "../constants";
 import { useNavigate } from 'react-router-dom';
-import { styled } from 'styled-components';
 
 const styles = `
   @font-face {
@@ -31,7 +30,6 @@ export default function Navbar() {
   const [balance, setBalance] = useState({ btc: 0, sats: 0 });
   const { connect, paymentAddress, connected, disconnect } = useLaserEyes();
   const [isCopied, setIsCopied] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState<
     "multi" | "binary" | null
@@ -117,7 +115,7 @@ export default function Navbar() {
               </button>
               <a href="/account" className="btn-glow">
                 <span>
-                  {isLoading ? "Loading..." : `${balance.btc.toFixed(8)} BTC`}
+                  {`${balance.btc.toFixed(8)} BTC`}
                 </span>
               </a>
               <div

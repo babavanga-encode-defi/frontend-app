@@ -1,43 +1,18 @@
-import { useState, useEffect } from "react";
-import {
-  BurnMechanism,
-  MBAMintMechanism,
-} from "@glittr-sdk/sdk/dist/transaction/contract/mba";
-import { GlittrSDK, txBuilder } from "@glittr-sdk/sdk";
+import { useState } from "react";
+import { GlittrSDK, Account } from "@glittr-sdk/sdk";
 import { TxResultModal } from "./TxResultModal.tsx";
-import { Psbt } from "bitcoinjs-lib";
 import { useLaserEyes } from "@glittr-sdk/lasereyes";
 import { createMarketContract } from "../create_market_contract";
-
-interface Market {
-  id: string;
-  title: string;
-}
+import { Market } from "../types/market";
 
 export function CreateContractForm({
   client,
 }: {
   client: GlittrSDK;
 }) {
-  const { paymentAddress, connected, signPsbt, paymentPublicKey, account } = useLaserEyes();
-  const [txid, setTxid] = useState<string | undefined>(undefined);
+  const { connected, signPsbt } = useLaserEyes();
   const [showModal, setShowModal] = useState(false);
-  const [txSuccess, setTxSuccess] = useState(false);
-  
-  const [formData, setFormData] = useState({
-    ticker: undefined,
-    supply_cap: "100000",
-    divisibility: 0,
-    live_time: 0,
-    mint_mechanism: {
-      free_mint: {
-        amount_per_mint: "10",
-      },
-    },
-  });
-
   const [marketTitle, setMarketTitle] = useState("");
-  const [isCreating, setIsCreating] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
   const [modalMessage, setModalMessage] = useState("");
   const [txLinks, setTxLinks] = useState<{ yes?: string; no?: string }>({});
@@ -46,31 +21,10 @@ export function CreateContractForm({
   const [countdown, setCountdown] = useState<number>(60);
   const [showCountdownOverlay, setShowCountdownOverlay] = useState(false);
 
-  // Enhanced logging for wallet connection status
-  useEffect(() => {
-    console.log("CreateContractForm - LaserEyes Context Update:", {
-      connected,
-      hasPaymentAddress: !!paymentAddress,
-      hasAccount: !!account,
-      hasPublicKey: !!paymentPublicKey,
-      accountDetails: account ? {
-        address: account.p2wpkh().address,
-      } : null
-    });
-  }, [connected, paymentAddress, account, paymentPublicKey]);
-
-  // Add connection state check on component mount
-  useEffect(() => {
-    console.log("CreateContractForm - Initial Mount State:", {
-      connected,
-      hasAccount: !!account
-    });
-  }, []);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!connected || !account) {
+    if (!connected) {
       alert("Please connect your wallet first");
       return;
     }
@@ -80,21 +34,19 @@ export function CreateContractForm({
       return;
     }
 
-    // IMMEDIATELY store just the title in a separate key
     localStorage.setItem('newMarketTitle', marketTitle);
     console.log('Stored new market title:', marketTitle);
 
     setIsProcessing(true);
     setCurrentStep("yes");
 
-    // Rest of your contract creation code...
     try {
+      const account = new Account({ network: "testnet" });
       await createMarketContract(
         account,
         marketTitle,
         client,
         signPsbt,
-        // YES callback...
         (yesTxid) => {
           console.log("YES contract created:", yesTxid);
           setTxLinks(prev => ({ ...prev, yes: `https://explorer.glittr.fi/tx/${yesTxid}` }));
@@ -102,26 +54,21 @@ export function CreateContractForm({
           setShowCountdownOverlay(true);
           setCountdown(60);
         },
-        // NO callback...
         (noTxid) => {
           console.log("NO contract created:", noTxid);
           setCurrentStep("complete");
           setShowCountdownOverlay(false);
           
-          // Show success modal with market details
           setModalTitle("Market Created Successfully!");
           setModalMessage(`Your market "${marketTitle}" has been created! The market will appear in the list shortly.`);
-          setTxSuccess(true);
           setShowModal(true);
 
-          // Clear form
           setMarketTitle("");
           setCurrentStep("none");
         }
       );
     } catch (error: any) {
       console.error("Market creation failed:", error);
-      // Remove the pending market if there's an error
       const markets = JSON.parse(localStorage.getItem('allMarkets') || '[]') as Market[];
       const storedTitle = localStorage.getItem('newMarketTitle');
       const updatedMarkets = markets.filter(m => m.title !== storedTitle);
@@ -134,124 +81,6 @@ export function CreateContractForm({
     }
     
     setIsProcessing(false);
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    if (name.includes(".")) {
-      const [parent, child] = name.split(".");
-      setFormData((prev) => ({
-        ...prev,
-        mint_mechanism: {
-          ...prev.mint_mechanism,
-          [parent]: {
-            // @ts-expect-error hacky way to insert previous value
-            ...prev.mint_mechanism[parent],
-            [child]: value,
-          },
-        },
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]:
-          name === "divisibility" || name === "live_time"
-            ? parseInt(value) || 0
-            : value,
-      }));
-    }
-  };
-
-  const createContract = async (formData: {
-    ticker: string | undefined;
-    supply_cap: string;
-    divisibility: number;
-    live_time: number;
-    mint_mechanism: {
-      free_mint: {
-        amount_per_mint: string;
-      }
-    }
-  }) => {
-    const tx = txBuilder.contractInstantiate({
-      ticker: formData.ticker,
-      divisibility: formData.divisibility,
-      live_time: formData.live_time,
-      supply_cap: formData.supply_cap,
-      mint_mechanism: {
-        free_mint: {
-          amount_per_mint: formData.mint_mechanism.free_mint.amount_per_mint
-        }
-      }
-    });
-
-    const psbt = await client.createTx({
-      address: paymentAddress,
-      tx,
-      outputs: [],
-      publicKey: paymentPublicKey,
-    });
-
-    const result = await signPsbt(psbt.toHex(), false, false);
-    if (result !== undefined && !!result?.signedPsbtHex) {
-      const newPsbt = Psbt.fromHex(result?.signedPsbtHex);
-      newPsbt.finalizeAllInputs();
-      const newHex = newPsbt.extractTransaction(true).toHex();
-
-      try {
-        const txId = await client.broadcastTx(newHex);
-        setTxid(txId);
-        setTxSuccess(true);
-        setShowModal(true);
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (_e) {
-        setTxid(undefined);
-        setTxSuccess(false);
-        setShowModal(true);
-      }
-    }
-  };
-
-  const handleCreateMarket = async (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Create Market Button Clicked - Current State:", {
-      isConnected: connected,
-      hasAccount: !!account,
-      hasPaymentAddress: !!paymentAddress,
-      hasPublicKey: !!paymentPublicKey,
-      marketTitle
-    });
-
-    if (!connected) {
-      console.warn("Wallet Connection Check Failed");
-      alert("Please connect your wallet first");
-      return;
-    }
-
-    if (!account) {
-      console.warn("Account Check Failed - No account despite connected state");
-      alert("Wallet connected but no account available");
-      return;
-    }
-
-    if (!marketTitle) {
-      console.log("No market title provided!");
-      return;
-    }
-
-    setIsCreating(true);
-    try {
-      console.log("Starting market contract creation...");
-      const { yesTxid } = await createMarketContract(account, marketTitle, client, signPsbt);
-      console.log("Market created successfully", { yesTxid });
-      setMarketTitle("");
-      alert("Market created successfully!");
-    } catch (error) {
-      console.error("Market creation failed:", error);
-      alert("Failed to create market: " + (error as Error).message);
-    } finally {
-      setIsCreating(false);
-    }
   };
 
   return (

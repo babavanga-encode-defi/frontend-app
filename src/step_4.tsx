@@ -121,12 +121,12 @@ export default function Mint() {
         // to broadcast bitcoin transaction
         const txid = await client.broadcastTx(newHex);
         setMintStatus({ success: true, txid });
-        setShowModal(true);
+        setShowModal(() => false);
       }
     } catch (error) {
       console.error(error);
       setMintStatus({ success: false });
-      setShowModal(true);
+      setShowModal(() => false);
     } finally {
       setMintingContractId(null);
     }
@@ -195,7 +195,7 @@ export default function Mint() {
       {showModal &&
         TxResultModal(
           mintStatus.success,
-          setShowModal,
+          () => setShowModal(false),
           mintStatus.success ? "Minting Successful!" : "Minting Failed",
           mintStatus.success
             ? "Your token has been successfully minted."

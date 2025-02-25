@@ -1,7 +1,6 @@
 import { 
   GlittrSDK, 
   txBuilder,
-  OpReturnMessage,
   Account
 } from "@glittr-sdk/sdk";
 import { Psbt } from "bitcoinjs-lib";
@@ -14,13 +13,14 @@ function generateRandomMarketNumber(): string {
 }
 
 export async function createMarketContract(
-  account: any,
-  marketTitle: string, 
+  account: Account,
+  marketTitle: string,
   client: GlittrSDK,
   signPsbt: (psbtHex: string, finalize?: boolean, broadcast?: boolean) => Promise<{ signedPsbtHex?: string } | undefined>,
-  onYesComplete?: (txid: string) => void,
-  onNoComplete?: (txid: string) => void
+  onYesCreated?: (txid: string) => void,
+  onNoCreated?: (txid: string) => void
 ) {
+  console.log('Creating market with title:', marketTitle);
   try {
     const marketNumber = generateRandomMarketNumber();
     console.log("Generated market number:", marketNumber);
@@ -60,8 +60,8 @@ export async function createMarketContract(
     console.log("YES contract created:", yesTxid);
     
     // Notify component about YES completion
-    if (onYesComplete) {
-      onYesComplete(yesTxid);
+    if (onYesCreated) {
+      onYesCreated(yesTxid);
     }
 
     // Wait 65 seconds before creating NO contract
@@ -105,8 +105,8 @@ export async function createMarketContract(
     const result = { yesTxid, noTxid, marketNumber };
 
     // Then notify about NO completion
-    if (onNoComplete) {
-      onNoComplete(noTxid);
+    if (onNoCreated) {
+      onNoCreated(noTxid);
     }
 
     return result;

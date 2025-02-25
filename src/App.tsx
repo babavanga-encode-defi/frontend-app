@@ -8,7 +8,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 // Define Market interface
 interface Market {
-  id: number;
+  id: number | string;
   title: string;
   distribution: { yes: number; no: number };
   liquidity: string;
@@ -16,43 +16,11 @@ interface Market {
   noTxId?: string;
   isPending: boolean;
   createdAt: string;
+  imageUrl?: string;
 }
 
 // Initial markets data
-const initialMarkets: Market[] = [
-  {
-    id: 1,
-    title: "Will AfD win more than 30% seats in German Parliamenta...",
-    distribution: { yes: 50, no: 50 },
-    liquidity: "$50,000",
-    isPending: false,
-    createdAt: "2024-01-01T12:00:00"
-  },
-  {
-    id: 2,
-    title: "Newcastle United to win against Nottingham Forest?",
-    distribution: { yes: 50, no: 50 },
-    liquidity: "$25,000",
-    isPending: false,
-    createdAt: "2024-01-02T12:00:00"
-  },
-  {
-    id: 3,
-    title: "Real Madrid to win against Girona FC?",
-    distribution: { yes: 50, no: 50 },
-    liquidity: "$75,000",
-    isPending: false,
-    createdAt: "2024-01-03T12:00:00"
-  },
-  {
-    id: 4,
-    title: "Will Bitcoin reach $100k by end of 2024?",
-    distribution: { yes: 50, no: 50 },
-    liquidity: "$100,000",
-    isPending: false,
-    createdAt: "2024-01-04T12:00:00"
-  }
-];
+// const initialMarkets: Market[] = [ ... ];
 
 // Add these types at the top
 type SortOption = 'recent' | 'liquidity' | 'none';
@@ -61,18 +29,13 @@ type SortOption = 'recent' | 'liquidity' | 'none';
 type FilteredMarket = Market & { key: string };
 
 function App() {
-  // Load markets only once at start
-  const [markets, setMarkets] = useState<Market[]>(() => {
-    return initialMarkets; // Just use initial markets
-  });
+  const [newMarkets, setNewMarkets] = useState<Market[]>([]);
 
-  // Single useEffect to check for new market titles
   useEffect(() => {
     const interval = setInterval(() => {
       const newTitle = localStorage.getItem('newMarketTitle');
       if (newTitle) {
-        console.log('Adding new market:', newTitle);
-        setMarkets(prev => [
+        setNewMarkets(prev => [
           {
             id: Date.now(),
             title: newTitle,
@@ -89,6 +52,14 @@ function App() {
 
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    // Use newMarkets in the component
+    if (newMarkets.length > 0) {
+      // Do something with newMarkets
+      console.log('New markets:', newMarkets);
+    }
+  }, [newMarkets]);
 
   const HomePage = () => {
     const [localMarkets, setLocalMarkets] = useState<Market[]>([]);

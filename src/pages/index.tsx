@@ -1,8 +1,8 @@
 "use client";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../components/ui/dialog";
 import { useState, useEffect } from 'react';
-import { Separator } from "@/components/ui/separator";
-import Link from 'next/link';
+import { Separator } from "../components/ui/separator";
+import { Link } from 'react-router-dom';
 
 // Define the Market type
 interface Market {
@@ -89,7 +89,7 @@ export default function Home() {
             {allMarkets.map(market => (
               <Link 
                 key={market.id}
-                href={`/event/${market.id}`}
+                to={`/event/${market.id}`}
                 className="block bg-[#0A0A0A] border border-[#1a1a1a] rounded-lg overflow-hidden hover:border-[#DB9AFF]/50 transition-colors duration-200"
               >
                 <div className="h-48 bg-[#1a1a1a] flex items-center justify-center">

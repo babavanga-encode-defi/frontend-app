@@ -12,7 +12,7 @@ export default function EventPage() {
   const [selectedOutcome, setSelectedOutcome] = useState<'yes' | 'no'>('yes');
   const [amount, setAmount] = useState<string>('0');
   const [percentage, setPercentage] = useState<25 | 50 | 75 | 100 | null>(null);
-  const { connected, paymentAddress, paymentPublicKey } = useLaserEyes();
+  const { connected, paymentAddress } = useLaserEyes();
   const [walletBalance, setWalletBalance] = useState(0);
 
   // Update the balance calculation with current BTC price (approximately $63,000 as of now)
@@ -66,10 +66,6 @@ export default function EventPage() {
     if (currentAmount > 0) {
       setAmount((currentAmount - 1).toString());
     }
-  };
-
-  const handleMaxClick = () => {
-    setAmount(walletBalance.toString());
   };
 
   // Add this function to handle percentage clicks
