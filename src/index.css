@@ -1,6 +1,21 @@
+@import '@fontsource/geist-sans';
+@import '@fontsource/geist-mono';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  .btn-glow {
+    @apply relative bg-[#0A0A0A] px-5 py-1.5 rounded-lg text-lg font-bold text-white transform transition-all duration-300 hover:scale-105 shadow-[inset_0_0_12px_0px_rgba(88,45,155,0.5)];
+  }
+}
+
+@layer base {
+  body {
+    @apply font-sans bg-[#0A0A0A] antialiased;
+  }
+}
 
 :root {
   --background: #ffffff;
@@ -17,5 +32,12 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Funnel Display', sans-serif;
+}
+
+@font-face {
+  font-family: 'Funnel Display';
+  src: url('/FunnelDisplay-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
 }

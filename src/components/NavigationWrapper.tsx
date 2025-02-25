@@ -1,9 +1,7 @@
 "use client";
 
-import Navbar from './Navbar';
+import App from '../App'
 
 export default function NavigationWrapper() {
-  const showNavbar = true;
-
-  return showNavbar ? <Navbar /> : null;
+  return <App />
 }

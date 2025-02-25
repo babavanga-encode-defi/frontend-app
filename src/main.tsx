@@ -1,19 +1,22 @@
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App'
+import './index.css' // or './App.css' depending on your setup
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import "./index.css";
-import Mint from "./step_0.tsx";
-import ParticlesBackground from "./components/ParticlesBackground.tsx";
+// import Mint from "./step_0.tsx";
+// import ParticlesBackground fsrom "./components/ParticlesBackground.tsx";
 import { LaserEyesProvider, GLITTR_DEVNET, TESTNET4 } from "@glittr-sdk/lasereyes";
 import NavigationWrapper from "./components/NavigationWrapper.tsx";
 import { NETWORK } from "./constants";
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <ParticlesBackground />
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    {/* <ParticlesBackground /> */}
     {/* Provider for Wallet Connection */}
     <LaserEyesProvider config={{ network: NETWORK == "regtest" ? GLITTR_DEVNET : NETWORK == "testnet" ? TESTNET4 : NETWORK}}> 
       <NavigationWrapper />
-      <Mint />
+      {/* <Mint /> */}
     </LaserEyesProvider>
-  </StrictMode>
-);
+  </React.StrictMode>
+)
